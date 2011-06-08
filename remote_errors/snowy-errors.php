@@ -5,11 +5,10 @@
  * applications and websites to your account at Snowy-Evening.com.
  * 
  * If you don't have one yet, sign up for a new account at Snowy-Evening.com
- * and select a plan that enables the remote error logging feature. Once
- * you have that account you'll see an "Integration" page for your project.
+ * and select a plan that enables the remote error logging feature.
  * 
  * Each project will have a unique API Key and Project ID. You will need
- * both of those pieces for this.
+ * both of those pieces for this. They can be found on the Edit Project page.
  * 
  * Please note: if you're already using Aspen Framework (aspen-framework.org)
  * this functionality has been built in. Please see the configuration
@@ -141,7 +140,7 @@ class Snowy_error  {
 
 			// Use curl to post the json-encoded data
 			$ch = curl_init();
-			curl_setopt($ch,CURLOPT_URL,'http://www.snowy-evening.com/api/integration/error_log');
+			curl_setopt($ch,CURLOPT_URL,'https://snowy-evening.com/api/integration/error_log');
 			curl_setopt($ch,CURLOPT_POST,count($error));
 			curl_setopt($ch,CURLOPT_POSTFIELDS,http_build_query($params));
 			curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
