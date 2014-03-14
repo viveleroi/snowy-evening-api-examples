@@ -32,7 +32,7 @@
  * produce any errors, warnings, or notices and E_ALL will help you
  * determine how well you're doing.
  */
-ini_set('display_errors', false);
+ini_set('display_errors', true);
 error_reporting(E_ALL);
 
 
@@ -51,7 +51,7 @@ set_error_handler(array(&$error, 'raise'));
  * $error->raise(512, 'Your application error message here.', __FILE__, __LINE__);
  * 
  */
-
+$error->raise(512, 'Your application error message here.', __FILE__, __LINE__);
 
 /**
  * The class!
@@ -61,12 +61,12 @@ class Snowy_error  {
 	/**
 	 * Enter your API key here.
 	 */
-	const SE_API_KEY = '$2a$08$2Mp4gNmdjfhgdfgb7kZJuZ.P4PQYf56qoHhhvUFCruVqT3p0Osju';
+	const SE_API_KEY = '$2a$08$CQ0lC6yVrXnH4w7xq1q9A.4y6/PSTUofVwp4blXCHqZdwL46OOLgm';
 	
 	/**
 	 * Enter the project ID these errors should be reported to.
 	 */
-	const SE_PROJ_ID = 114;
+	const SE_PROJ_ID = 103;
 
 	
 	/**
@@ -115,23 +115,35 @@ class Snowy_error  {
 
 		// Build the full error report
 		$error = array(
-				'application'		=> '', // Fill this in to help determine which installation the error came from
-				'version_complete'	=> '', // You can determine a complete version (version + build, dependency versions, etc)
-				'version'			=> '', // Your application version
-				'build'				=> '', // Current build number.
-				'date'				=> date("Y-m-d H:i:s"),
-				'gmdate'			=> gmdate("Y-m-d H:i:s"),
-				'visitor_ip'		=> $this->getServerValue('REMOTE_ADDR'),
-				'referrer_url'		=> $this->getServerValue('HTTP_REFERER'),
-				'request_uri'		=> $this->getServerValue('REQUEST_URI'),
-				'user_agent'		=> $this->getServerValue('HTTP_USER_AGENT'),
-				'error_type'		=> $errType[$errNo],
-				'error_message'		=> $errMsg,
-				'error_no'			=> $errNo,
-				'file'				=> $file,
-				'line'				=> $line,
-				'trace'				=> (empty($trace) ? false : $trace)
+				'application'				=> 'My App', // Fill this in to help determine which installation the error came from
+				'version_complete'	=> '1.0 Build 2364', // You can determine a complete version (version + build, dependency versions, etc)
+				'version'						=> '1.0', // Your application version
+				'build'							=> '2364', // Current build number.
+				'date'							=> date("Y-m-d H:i:s"),
+				'gmdate'						=> gmdate("Y-m-d H:i:s"),
+				'visitor_ip'				=> $this->getServerValue('REMOTE_ADDR'),
+				'referrer_url'			=> $this->getServerValue('HTTP_REFERER'),
+				'request_uri'				=> $this->getServerValue('REQUEST_URI'),
+				'user_agent'				=> $this->getServerValue('HTTP_USER_AGENT'),
+				'error_type'				=> $errType[$errNo],
+				'error_message'			=> $errMsg,
+				'error_no'					=> $errNo,
+				'file'							=> $file,
+				'line'							=> $line,
+				'trace'							=> (empty($trace) ? false : $trace),
+				'additional_info'		=> 'additional content you need to communicate'
 			);
+
+
+		// Optionally, you may provide a custom hash of the error that Snowy will use to determine if it's a duplicate or not.
+		// By default, Snowy hashes the application, error number, and error message and if that hash matches existing
+		// errors, we append the error to that issue instead of making a new one.
+		// 
+		// You may provide your own custom hash that we'll check against your existing issues. The hash may be up to 255 characters
+		// long.
+		// For example, this will require errors come from the same application, error number, file, and exact line.
+		$error['hash'] = sha1( $error['application'] . $error['error_no'] . $file . $line );
+		
 
 			$params = array(
 					'api_key'		=> self::SE_API_KEY,
@@ -140,12 +152,19 @@ class Snowy_error  {
 
 			// Use curl to post the json-encoded data
 			$ch = curl_init();
-			curl_setopt($ch,CURLOPT_URL,'https://snowy-evening.com/api/integration/error_log');
+			curl_setopt($ch,CURLOPT_URL,'https://snowy-evening.com/api/integration/error_log/');
 			curl_setopt($ch,CURLOPT_POST,count($error));
 			curl_setopt($ch,CURLOPT_POSTFIELDS,http_build_query($params));
-			curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
-			$result = curl_exec($ch);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_VERBOSE, 1);
+			curl_setopt($ch, CURLOPT_HEADER, 1);
+			$response = curl_exec($ch);
+			list($header, $body) = explode("\r\n\r\n", $response, 2);
 			curl_close($ch);
+
+			print '<pre>';
+			var_dump($header);
+			var_dump($body);
 	}
 
 
@@ -160,4 +179,3 @@ class Snowy_error  {
 		return isset($_SERVER[$key]) ? $_SERVER[$key] : $default;
 	}
 }
-?>
