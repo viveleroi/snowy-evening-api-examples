@@ -1,0 +1,1 @@
+All code examples in this folder are for v1.x of the Snowy API
