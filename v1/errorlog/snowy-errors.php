@@ -163,7 +163,7 @@ class Snowy_error  {
 		// Use curl to post the json-encoded data
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_USERPWD, self::SE_API_ORG . ":" . self::SE_API_KEY);  
-		curl_setopt($ch,CURLOPT_URL,'http://127.0.0.1:3000/error-log');
+		curl_setopt($ch,CURLOPT_URL,'https://snowy-evening.com:3000/errorlog');
 		curl_setopt($ch,CURLOPT_POSTFIELDS,$json);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(                                                                          
 	    'Content-Type: application/json',                                                                                
